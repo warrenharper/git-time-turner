@@ -34,7 +34,8 @@ function main() {
        new_date_secs=\$((AUTHOR_DATE_SECS + TRAVEL_TIME))
        new_date=\$(date -d @\${new_date_secs} -R)
        echo \$new_date
-       export GIT_AUTHOR_DATE=\"\${new_date}\"               
+       export GIT_AUTHOR_DATE=\"\${new_date}\"        
+       export GIT_COMMITTER_DATE=\"\${new_date}\"
     "
 }
 
