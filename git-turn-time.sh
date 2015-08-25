@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 TRAVEL_TIME=0
-START_COMMIT=''
+COMMIT_RANGE=''
 
 function usage() {
     
@@ -15,7 +15,7 @@ function main() {
                  TRAVEL_TIME=$OPTARG
                  ;;
              c)
-                 start_commit=$OPTARG
+                 COMMIT_RANGE="$OPTARG..HEAD"
                  ;;
              *)
                  usage
@@ -36,7 +36,7 @@ function main() {
        echo \$new_date
        export GIT_AUTHOR_DATE=\"\${new_date}\"        
        export GIT_COMMITTER_DATE=\"\${new_date}\"
-    "
+    " ${COMMIT_RANGE}
 }
 
 main $@
