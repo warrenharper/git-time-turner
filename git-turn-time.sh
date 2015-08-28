@@ -44,6 +44,12 @@ function temp_tag() {
     git tag $TEMP_TAG_NAME $1
 }
 
+function remove_temp_tag() {
+    git tag -d $TEMP_TAG_NAME > /dev/null
+}
+
+
+
 function main() {
     while getopts ":t:,:c:,:h" opt; do
          case $opt in
@@ -73,6 +79,8 @@ function main() {
        export GIT_AUTHOR_DATE=\"\${new_date}\"        
        export GIT_COMMITTER_DATE=\"\${new_date}\"
     " ${COMMIT_RANGE}
+
+    remove_temp_tag
 }
 
 main $@
