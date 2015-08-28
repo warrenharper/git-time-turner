@@ -78,7 +78,7 @@ function main() {
        echo \$new_date
        export GIT_AUTHOR_DATE=\"\${new_date}\"        
        export GIT_COMMITTER_DATE=\"\${new_date}\"
-    " ${COMMIT_RANGE}
+    " ${COMMIT_RANGE} | grep -v "refs/tags/$TEMP_TAG_NAME"
 
     remove_temp_tag
 }
