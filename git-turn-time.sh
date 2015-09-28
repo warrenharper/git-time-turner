@@ -41,6 +41,11 @@ function parse_commit_range() {
     return 0
 }
 
+function verify_range() {
+    local start_commit=$1
+    local end_commit=$2
+    git merge-base --is-ancestor $start_commit $end_commit
+    return $?
     
 }
 
@@ -71,6 +76,12 @@ function main() {
     done
     readonly TRAVEL_TIME
     readonly START_COMMIT
+    readonly END_COMMIT
+    verify_range $START_COMMIT $END_COMMIT
+    if [[ $? -ne 0 ]]; then
+       echo "Invalid range"
+        return 10
+    fi
     export TRAVEL_TIME
     git filter-branch --env-filter "
         AUTHOR_DATE_SECS=\`echo \$GIT_AUTHOR_DATE | grep -o @[0-9]*\`;
