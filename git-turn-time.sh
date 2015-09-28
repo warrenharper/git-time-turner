@@ -57,6 +57,34 @@ function remove_temp_tag() {
     git tag -d $TEMP_TAG_NAME > /dev/null
 }
 
+function after() {
+    local ancestor=$1
+    local descendent=$2
+    
+    echo $descendent
+    git merge-base --is-ancestor $ancestor $descendent
+    return $?
+}
+
+function before() {
+    after $2 $1
+    return $?
+}
+
+function modify_dates() {
+    local start_commit=$1
+    local end_commit=$2
+    local commit=$3
+    local time_difference=$4
+    echo -ne "$3"
+    
+    if after $start_commit $commit  && before $end_commit $commit ; then
+        new_author_date=`date -d @$time_difference -R`
+        export GIT_AUTHOR_DATE=$new_author_date
+        export GIT_COMMITTER_DATE=$new_author_date
+    fi
+    
+}
 
 
 function main() {
@@ -83,17 +111,12 @@ function main() {
         return 10
     fi
     export TRAVEL_TIME
+    export -f modify_dates
+    export -f after
+    export -f before
     git filter-branch --env-filter "
-        AUTHOR_DATE_SECS=\`echo \$GIT_AUTHOR_DATE | grep -o @[0-9]*\`;
-        AUTHOR_DATE_SECS=\${AUTHOR_DATE_SECS:1}
-        echo \$AUTHOR_DATE_SECS
-
-       new_date_secs=\$((AUTHOR_DATE_SECS + TRAVEL_TIME))
-       new_date=\$(date -d @\${new_date_secs} -R)
-       echo \$new_date
-       export GIT_AUTHOR_DATE=\"\${new_date}\"        
-       export GIT_COMMITTER_DATE=\"\${new_date}\"
-    " ${COMMIT_RANGE} | grep -v "refs/tags/$TEMP_TAG_NAME"
+                 modify_dates $START_COMMIT $END_COMMIT \$GIT_COMMIT $TRAVEL_TIME
+    " HEAD | grep -v "refs/tags/$TEMP_TAG_NAME"
 
     remove_temp_tag
 }
