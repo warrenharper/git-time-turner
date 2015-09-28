@@ -11,15 +11,16 @@ function usage() {
 
 
 function parse_commit_range() {
-    local input_str
+    local input_str="$1"
     local start_commit
     local end_commit
     local range_delimiter
-    input_str=$1
+
     if [[ $input_str == *".."* ]]; then
         start_commit=`echo $input_str | awk -F "[.]+" '{print $1}'`
         end_commit=`echo $input_str | awk -F "[.]+" '{print $2}'`
         range_delimiter=`echo $input_str | grep -o "\.\{1,3\}"`
+
     else
         start_commit=${input_str}
         end_commit=${input_str}
