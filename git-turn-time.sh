@@ -25,6 +25,14 @@ function parse_commit_range() {
         end_commit=${input_str}
         range_delimiter='..'
     fi
+   
+    start_commit=`git rev-parse $start_commit`
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+    end_commit=`git rev-parse $end_commit`
+    if [[ $? -ne 0 ]]; then
+        exit 1
     fi
     
     START_COMMIT=$start_commit
