@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 TRAVEL_TIME=0
-COMMIT_RANGE=''
-readonly TEMP_TAG_NAME="TEMPORARY_TIME_TRAVEL_TAG"
+START_COMMIT=""
+END_COMMIT=""
 
 function usage() {
     
@@ -17,26 +17,22 @@ function parse_commit_range() {
     local range_delimiter
     input_str=$1
     if [[ $input_str == *".."* ]]; then
-        start_commit=`echo $input_str | awk -F "[.]+" '{print $1}'`~1
+        start_commit=`echo $input_str | awk -F "[.]+" '{print $1}'`
         end_commit=`echo $input_str | awk -F "[.]+" '{print $2}'`
         range_delimiter=`echo $input_str | grep -o "\.\{1,3\}"`
     else
-        start_commit=${input_str}~1
+        start_commit=${input_str}
         end_commit=${input_str}
         range_delimiter='..'
     fi
-
-    temp_tag $end_commit
-
-    git rev-list HEAD..$start_commit > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        start_commit=''
-        range_delimiter=''
     fi
+    
+    START_COMMIT=$start_commit
+    END_COMMIT=$end_commit
+    
+    return 0
+}
 
-    end_commit=$TEMP_TAG_NAME
-
-    COMMIT_RANGE="${start_commit}${range_delimiter}${end_commit}"
     
 }
 
