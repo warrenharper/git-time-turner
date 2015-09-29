@@ -72,17 +72,24 @@ function before() {
     return $?
 }
 
+function increment_date() {
+    local date=$(echo $1 | awk '{print $1}' | cut -d "@" -f 2)    
+    local addend=$2
+    date=$((date + addend))
+    echo $(date -d @$date -R)
+    
+}
+
+
 function modify_dates() {
     local start_commit=$1
     local end_commit=$2
     local commit=$3
     local time_difference=$4
-    echo -ne "$3"
     
-    if after $start_commit $commit  && before $end_commit $commit ; then
-        new_author_date=`date -d @$time_difference -R`
-        export GIT_AUTHOR_DATE=$new_author_date
-        export GIT_COMMITTER_DATE=$new_author_date
+    if after $start_commit $commit && before $end_commit $commit; then
+        export GIT_AUTHOR_DATE="$(increment_date "$GIT_AUTHOR_DATE"  "$time_difference")"
+        export GIT_COMMITTER_DATE="$(increment_date "$GIT_COMMITTER_DATE"  "$time_difference")"
     fi
     
 }
@@ -115,6 +122,7 @@ function main() {
     export -f modify_dates
     export -f after
     export -f before
+    export -f increment_date
     git filter-branch --env-filter "
                  modify_dates $START_COMMIT $END_COMMIT \$GIT_COMMIT $TRAVEL_TIME
     " HEAD | grep -v "refs/tags/$TEMP_TAG_NAME"
