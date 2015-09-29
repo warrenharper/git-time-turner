@@ -97,25 +97,25 @@ function modify_dates() {
 
 function main() {
     while getopts ":t:,:c:,:h" opt; do
-         case $opt in
-             t)
-                 TRAVEL_TIME=$OPTARG
-                 ;;
-             c)
-                 parse_commit_range $OPTARG
-                 ;;
-             *)
-                 usage
-                 exit 0
-                 ;;    
-         esac
+        case $opt in
+            t)
+                TRAVEL_TIME=$OPTARG
+                ;;
+            c)
+                parse_commit_range $OPTARG
+                ;;
+            *)
+                usage
+                exit 0
+                ;;    
+        esac
     done
     readonly TRAVEL_TIME
     readonly START_COMMIT
     readonly END_COMMIT
     verify_range $START_COMMIT $END_COMMIT
     if [[ $? -ne 0 ]]; then
-       echo "Invalid range"
+        echo "Invalid range"
         return 10
     fi
     export TRAVEL_TIME
