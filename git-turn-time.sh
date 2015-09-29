@@ -62,7 +62,6 @@ function after() {
     local ancestor=$1
     local descendent=$2
     
-    echo $descendent
     git merge-base --is-ancestor $ancestor $descendent
     return $?
 }
