@@ -4,6 +4,19 @@ TRAVEL_TIME=0
 START_COMMIT=""
 END_COMMIT=""
 
+DAYS_UNIT="D"
+HOURS_UNIT="H"
+MINUTES_UNIT="M"
+SECONDS_UNIT="S"
+
+HOURS_PER_DAY=24
+MINUTES_PER_HOUR=60
+SECONDS_PER_MINUTE=60
+
+BAD_TIME_FORMAT=1
+BAD_TIME_FORMAT_MSG="Bad time format. Please try using on the the following suffixes: d - days, h - hours, m - minutes, s - seconds"
+
+
 function usage() {
     
     echo "Help"
@@ -40,6 +53,40 @@ function parse_commit_range() {
     END_COMMIT=$end_commit
     
     return 0
+}
+
+function parse_time() {
+    local input_str="$1"
+    local unit=$(echo "$input_str" | grep -E "[a-z]+" -o | awk '{print toupper($0)}')
+    local time=$(echo "$input_str" | grep -E "[0-9]+" -o)
+    local seconds
+
+
+    if [[ "$unit" == "$DAYS_UNIT" ]]; then
+        time=$(( $time * $HOURS_PER_DAY ))
+        unit=$HOURS_UNIT
+    fi
+
+    if [[ "$unit" == "$HOURS_UNIT" ]]; then
+        time=$(( $time * $MINUTES_PER_HOUR ))
+        unit=$MINUTES_UNIT
+
+    fi
+
+    if [[ "$unit" == "$MINUTES_UNIT" ]]; then
+        time=$(( $time * $SECONDS_PER_MINUTE ))
+        unit=$SECONDS_UNIT
+
+    fi
+
+    if [[ !("$unit" == "$SECONDS_UNIT" ||  "$unit" == "") ]]; then
+        return $BAD_TIME_FORMAT
+    fi
+
+    echo $time
+    return 0
+
+    
 }
 
 function verify_range() {
@@ -98,10 +145,18 @@ function main() {
     while getopts ":t:,:c:,:h" opt; do
         case $opt in
             t)
-                TRAVEL_TIME=$OPTARG
+                TRAVEL_TIME=$(parse_time $OPTARG)
+                if [[ $? -ne 0 ]]; then
+                    echo "$BAD_TIME_FORMAT_MSG"
+                    exit $BAD_TIME_FORMAT
+                fi
                 ;;
             c)
                 parse_commit_range $OPTARG
+                returned=$?
+                if [[ $returned -ne 0 ]]; then
+                    exit $returned
+                fi
                 ;;
             *)
                 usage
