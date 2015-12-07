@@ -18,8 +18,39 @@ BAD_TIME_FORMAT=1
 BAD_TIME_FORMAT_MSG="Bad time format. Please try using on the the following suffixes: d - days, h - hours, m - minutes, s - seconds"
 
 function usage() {
-    
-    echo "Help"
+    cat <<EOF
+Usage: git turn-time [OPTIONS]
+
+Options:
+  -t, --time=VALUE[UNIT]                 The amount of time that you want to
+                                         travel. You can specify a unit if you
+                                         want to use a unit other than seconds.
+                                         The UNITs are:
+                                                       d for days
+                                                       h for hours
+                                                       m for minutes
+                                                       s for seconds
+
+  -c, --commits=[revision range]         The revision range that you would like to
+                                         shift the dates for. A commit range looks
+                                         like:
+                                            origin..HEAD
+                                                 or
+                                                HEAD
+
+
+  -h, --help                             display this help and exit
+
+Examples:
+
+git turn-time -t 10h -c 5taff0..HEAD     Move the revisions commit and author
+                                         dates foward in time by 10 hours.
+
+
+git turn-time -t -5m -c 5taff0           Move the revision 5taff0's commit and
+                                         author date backwards in time 5m.
+EOF
+    exit 0
 }
 
 
@@ -47,7 +78,7 @@ function main() {
             *)
                 usage
                 exit 0
-                ;;    
+                ;;
         esac
     done
 
