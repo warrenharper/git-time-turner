@@ -3,6 +3,7 @@
 TRAVEL_TIME=0
 START_COMMIT=""
 END_COMMIT=""
+COMMIT_RANGE=""
 
 DAYS_UNIT="D"
 HOURS_UNIT="H"
@@ -24,21 +25,24 @@ function usage() {
 
 
 function main() {
-    while getopts ":t:,:c:,:h" opt; do
-        case $opt in
-            t)
-                TRAVEL_TIME=$(parse_time $OPTARG)
-                if [[ $? -ne 0 ]]; then
-                    echo "$BAD_TIME_FORMAT_MSG"
-                    exit $BAD_TIME_FORMAT
-                fi
+    while [ $# -gt 0 ]; do
+        opt="$1"
+        shift
+        case "$opt" in
+            -t | --time)
+                TRAVEL_TIME="$1"
+               
+                shift
                 ;;
-            c)
-                parse_commit_range $OPTARG
-                returned=$?
-                if [[ $returned -ne 0 ]]; then
-                    exit $returned
-                fi
+            --time=*)
+                TRAVEL_TIME="${opt#*=}"
+                ;;
+            -c | --commits)
+                COMMIT_RANGE="$1"
+                shift
+                ;;
+            --commits=*)
+                COMMIT_RANGE="${opt#*=}"
                 ;;
             *)
                 usage
@@ -46,6 +50,19 @@ function main() {
                 ;;    
         esac
     done
+
+    TRAVEL_TIME=$(parse_time "$TRAVEL_TIME")
+    if [[ $? -ne 0 ]]; then
+        echo "$BAD_TIME_FORMAT_MSG"
+        exit $BAD_TIME_FORMAT
+    fi
+    
+    parse_commit_range "$COMMIT_RANGE"
+    returned=$?
+    if [[ $returned -ne 0 ]]; then
+        exit $returned
+    fi
+    
     readonly TRAVEL_TIME
     readonly START_COMMIT
     readonly END_COMMIT
