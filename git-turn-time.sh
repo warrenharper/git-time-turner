@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# The library where all of the functions live
+source /usr/local/lib/git-time-turner-setup.sh
+
 TRAVEL_TIME=0
 START_COMMIT=""
 END_COMMIT=""
@@ -111,5 +114,4 @@ function main() {
                  modify_dates $START_COMMIT $END_COMMIT \$GIT_COMMIT $TRAVEL_TIME
     " HEAD
 }
-
 main $@
