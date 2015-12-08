@@ -34,9 +34,10 @@ Options:
                                                        m for minutes
                                                        s for seconds
 
-  -c, --commits=[revision range]         The revision range that you would like to
-                                         shift the dates for. A commit range looks
-                                         like:
+  -c, --commits=[revision [range]]       The revision or revision range that you
+                                         would like to shift the dates for.
+                                         Revision ranges are inclusive. A
+                                         revision range looks like:
                                             origin..HEAD
                                                  or
                                                 HEAD
