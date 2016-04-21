@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# The library where all of the functions live
-source /usr/local/lib/git-time-turner-setup.sh
+
+ 
 
 TRAVEL_TIME=0
 START_COMMIT=""
@@ -20,9 +20,7 @@ SECONDS_PER_MINUTE=60
 BAD_TIME_FORMAT=1
 BAD_TIME_FORMAT_MSG="Bad time format. Please try using on the the following suffixes: d - days, h - hours, m - minutes, s - seconds"
 
-function usage() {
-    cat <<EOF
-Usage: git turn-time [OPTIONS]
+USAGE=" [OPTIONS]
 
 Options:
   -t, --time=VALUE[UNIT]                 The amount of time that you want to
@@ -52,14 +50,14 @@ git turn-time -t 10h -c 5taff0..HEAD     Move the revisions commit and author
 
 
 git turn-time -t -5m -c 5taff0           Move the revision 5taff0's commit and
-                                         author date backwards in time 5m.
-EOF
-    exit 0
-}
+                                         author date backwards in time 5m."
 
 
 
 function main() {
+    # The library where all of the functions live
+    source /usr/local/lib/git-time-turner-setup.sh
+    
     while [ $# -gt 0 ]; do
         opt="$1"
         shift
