@@ -59,6 +59,23 @@ function assert_git_date {
 
 }
 
+function assert_git_dates {
+    local start_commit=$1
+    local end_commit=$2
+    local time_shift_in_sec=$3
+    
+    git log --pretty="%H" | while read commit; do
+        if  after $start_commit $commit && before $end_commit $commit; then
+            expected=$(($BASE_DATE + $time_shift_in_sec))
+        else
+            expected=$BASE_DATE
+        fi
+        
+        assert_git_date $commit "@$expected"
+        
+    done    
+}
+
 function get_commit_info {
     local commit=$1
     local info_formatter=$2
@@ -77,25 +94,18 @@ function run_test {
     local end_commit=$2
     local time_shift=$3
     local time_shift_in_sec=$4
+    local extra_flags=$5
+
     echo -n "..."
   
-    (source $TIME_TURNER -c "${start_commit}..${end_commit}" -t $time_shift) >/dev/null
+    (source $TIME_TURNER -c "${start_commit}..${end_commit}" -t $time_shift ${extra_flags}) >/dev/null
 
     if [[ $? -ne 0 ]]; then
         fail "Illegal parameters"
     fi
    
-
-    git log --pretty="%H" | while read commit; do
-        if  after $start_commit $commit && before $end_commit $commit; then
-            expected=$(($BASE_DATE + $time_shift_in_sec))
-        else
-            expected=$BASE_DATE
-        fi
-
-        assert_git_date $commit "@$expected"
-
-    done    
+    assert_git_dates $start_commit $end_commit $time_shift_in_sec
+   
 
     teardown_git_dir
 
@@ -118,12 +128,24 @@ function test_minute {
     run_test HEAD~4 HEAD~3 21m 1260
 }
 
+function test_force {
+    echo -n "TEST_FORCE..."
+    setup_git_dir
+    local start_commit=HEAD~4
+    local end_commit=HEAD~2
+    (source $TIME_TURNER -c "${start_commit}..${end_commit}" -t 21m ${extra_flags}) >/dev/null
+    (source $TIME_TURNER -c "${start_commit}..${end_commit}" -t 8h -f) > /dev/null
+    assert_git_dates $start_commit $end_commit 30060
+    echo "PASS"
+    
+}
+
 
 function main {
     test_day
     test_hour
     test_minute
-
+    test_force
     
     
 }
