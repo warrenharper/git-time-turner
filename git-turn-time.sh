@@ -40,6 +40,10 @@ Options:
                                                  or
                                                 HEAD
 
+  -f, --force                            git turn-time refuses to start with
+                                         an existing temporary directory or when
+                                         there are already refs starting with 
+                                         refs/original/, unless forced.
 
   -h, --help                             display this help and exit
 
@@ -47,7 +51,6 @@ Examples:
 
 git turn-time -t 10h -c 5taff0..HEAD     Move the revisions commit and author
                                          dates foward in time by 10 hours.
-
 
 git turn-time -t -5m -c 5taff0           Move the revision 5taff0's commit and
                                          author date backwards in time 5m."
@@ -57,7 +60,7 @@ git turn-time -t -5m -c 5taff0           Move the revision 5taff0's commit and
 function main() {
     # The library where all of the functions live
     source /usr/local/lib/git-time-turner-setup.sh
-    
+    local force
     while [ $# -gt 0 ]; do
         opt="$1"
         shift
@@ -76,6 +79,9 @@ function main() {
                 ;;
             --commits=*)
                 COMMIT_RANGE="${opt#*=}"
+                ;;
+            -f | --force)
+                force="$opt"
                 ;;
             *)
                 usage
@@ -109,7 +115,7 @@ function main() {
     export -f after
     export -f before
     export -f increment_date
-    git filter-branch --env-filter "
+    git filter-branch ${force} --env-filter  "
                  modify_dates $START_COMMIT $END_COMMIT \$GIT_COMMIT $TRAVEL_TIME
     " HEAD
 }
